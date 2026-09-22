@@ -11,7 +11,7 @@ export default defineEventHandler(async event=>{
 
   try{
     results.firebase=await saveFirebaseRequest(config,{
-      source:'Chat IA',
+      source:'Assistant web',
       typeDemande:clean(lead.requestType),
       nom:clean(lead.name),
       telephone:clean(lead.phone),
@@ -31,7 +31,7 @@ export default defineEventHandler(async event=>{
       await $fetch(`https://api.airtable.com/v0/${config.airtableBaseId}/${config.airtableQuotesTableId}`,{
         method:'POST',
         headers:{Authorization:`Bearer ${config.airtableToken}`},
-        body:{typecast:true,fields:{Nom:clean(lead.name),Prenoms:'Demande via chat IA',Mail:lead.email||undefined,Telephone:clean(lead.phone),Destination:lead.destination||undefined,'Description du colis':description,Fret:lead.transport||undefined,'Estimation de produits':lead.measurement||undefined}}
+        body:{typecast:true,fields:{Nom:clean(lead.name),Prenoms:'Demande via assistant web',Mail:lead.email||undefined,Telephone:clean(lead.phone),Destination:lead.destination||undefined,'Description du colis':description,Fret:lead.transport||undefined,'Estimation de produits':lead.measurement||undefined}}
       })
       results.airtable=true
     }catch(error:any){console.error('Airtable lead error',error?.status||error?.message)}

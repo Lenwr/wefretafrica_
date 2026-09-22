@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
-useSeoMeta({title:'Demander un devis | WefretAfrica',description:'Recevez un devis personnalisé pour votre envoi vers le Togo, le Bénin ou un autre pays d’Afrique de l’Ouest.'})
+useSeoMeta({title:'Devis envoi colis Afrique de l’Ouest | WefretAfrica',description:'Recevez un devis personnalisé pour votre envoi vers le Togo, le Bénin ou un autre pays d’Afrique de l’Ouest.'})
 useHead({link:[{rel:'canonical',href:'https://www.wefretafrica.com/devis-en-ligne'}]})
 
 const form = reactive({
