@@ -45,46 +45,54 @@ export default defineEventHandler(async (event) => {
   }
 
   if (config.airtableToken) {
-    const airtableResponse = await fetch(
-      `https://api.airtable.com/v0/${config.airtableBaseId}/${config.airtableQuotesTableId}`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${config.airtableToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          typecast: true,
-          fields: {
-            fldHzNhLGwH7ntTUn: clean(body.name),
-            fldA30vP8uubB5eN2: 'Formulaire site',
-            fldhv6Tr3RSC8Okd4: clean(body.email),
-            fldrgWiLhDekCLECf: clean(body.phone),
-            fldJy1tJGG62m2xyy: clean(body.destination),
-            fldXNy6QuQf9b9VT7: details,
-            fldmu6iCkJLeIL0m4: clean(body.transport),
-            fld3IJN7NzH9jFj4S: clean(body.measurement) || 'Non renseigné'
-          }
-        })
-      }
-    )
+    try {
+      const airtableResponse = await fetch(
+        `https://api.airtable.com/v0/${config.airtableBaseId}/${config.airtableQuotesTableId}`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${config.airtableToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            typecast: true,
+            fields: {
+              fldHzNhLGwH7ntTUn: clean(body.name),
+              fldA30vP8uubB5eN2: 'Formulaire site',
+              fldhv6Tr3RSC8Okd4: clean(body.email),
+              fldrgWiLhDekCLECf: clean(body.phone),
+              fldJy1tJGG62m2xyy: clean(body.destination),
+              fldXNy6QuQf9b9VT7: details,
+              fldmu6iCkJLeIL0m4: clean(body.transport),
+              fld3IJN7NzH9jFj4S: clean(body.measurement) || 'Non renseigné'
+            }
+          })
+        }
+      )
 
-    airtableSaved = airtableResponse.ok
-    if (!airtableSaved) {
-      console.error('Airtable a refusé le devis :', airtableResponse.status, await airtableResponse.text())
+      airtableSaved = airtableResponse.ok
+      if (!airtableSaved) {
+        console.error('Airtable a refusé le devis :', airtableResponse.status, await airtableResponse.text())
+      }
+    } catch (error) {
+      console.error('Airtable est momentanément indisponible :', error)
     }
   }
 
   if (config.resendApiKey) {
-    const emailResponse=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${config.resendApiKey}`,'Content-Type':'application/json'},body:JSON.stringify({
-      from:config.quoteFromEmail,
-      to:[config.quoteToEmail],
-      reply_to:clean(body.email),
-      subject:`Nouveau devis ${clean(body.destination)} — ${clean(body.name)}`,
-      text:[`Nom : ${clean(body.name)}`,`E-mail : ${clean(body.email)}`,`Téléphone : ${clean(body.phone)}`,`Destination : ${clean(body.destination)}`,`Transport : ${clean(body.transport)}`,`Type : ${clean(body.parcelType)}`,`Poids / volume : ${clean(body.measurement)}`,`Enlèvement : ${clean(body.pickup)}`,`Ville : ${clean(body.city)}`,'',`Message : ${clean(body.message)}`].join('\n')
-    })})
-    emailSent = emailResponse.ok
-    if (!emailSent) console.error('Resend a refusé le devis :', emailResponse.status, await emailResponse.text())
+    try {
+      const emailResponse=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${config.resendApiKey}`,'Content-Type':'application/json'},body:JSON.stringify({
+        from:config.quoteFromEmail,
+        to:[config.quoteToEmail],
+        reply_to:clean(body.email),
+        subject:`Nouveau devis ${clean(body.destination)} — ${clean(body.name)}`,
+        text:[`Nom : ${clean(body.name)}`,`E-mail : ${clean(body.email)}`,`Téléphone : ${clean(body.phone)}`,`Destination : ${clean(body.destination)}`,`Transport : ${clean(body.transport)}`,`Type : ${clean(body.parcelType)}`,`Poids / volume : ${clean(body.measurement)}`,`Enlèvement : ${clean(body.pickup)}`,`Ville : ${clean(body.city)}`,'',`Message : ${clean(body.message)}`].join('\n')
+      })})
+      emailSent = emailResponse.ok
+      if (!emailSent) console.error('Resend a refusé le devis :', emailResponse.status, await emailResponse.text())
+    } catch (error) {
+      console.error('Resend est momentanément indisponible :', error)
+    }
   }
 
   if (!firebaseSaved && !airtableSaved && !emailSent) {
